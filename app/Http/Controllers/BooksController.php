@@ -20,18 +20,18 @@ class BooksController extends Controller
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row){
-   
+
                            $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBook">Edit</a>';
-   
+
                            $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBook">Delete</a>';
-    
+
                             return $btn;
                     })
                     ->rawColumns(['action'])
                     ->make(true);
         }
-      
-        return view('book',compact('books'));
+
+        return view('book');
     }
     /**
      * Show the form for creating a new resource.
@@ -52,8 +52,8 @@ class BooksController extends Controller
     public function store(Request $request)
     {
         Book::updateOrCreate(['id' => $request->book_id],
-                ['title' => $request->title, 'author' => $request->author]);        
-   
+                ['title' => $request->title, 'author' => $request->author]);
+
         return response()->json(['success'=>'Book saved successfully.']);
     }
 
@@ -101,7 +101,7 @@ class BooksController extends Controller
     public function destroy($id)
     {
         Book::find($id)->delete();
-     
+
         return response()->json(['success'=>'Book deleted successfully.']);
     }
 }
