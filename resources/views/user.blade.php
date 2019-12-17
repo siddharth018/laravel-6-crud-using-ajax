@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laravel 6 Crud operation using ajax(Real Programmer)</title>
+    <title>Users</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
@@ -10,14 +10,14 @@
 <body>
 
 <div class="container">
-    <h1>Laravel 6 Crud with Ajax</h1>
-    <a class="btn btn-success" href="javascript:void(0)" id="createNewBook"> Create New Book</a>
+    <h1>Users</h1>
+    <a class="btn btn-success" href="javascript:void(0)" id="createNewUser"> Create New User</a>
     <table class="table table-bordered data-table">
         <thead>
             <tr>
                 <th>No</th>
-                <th>Title</th>
-                <th>Author</th>
+                <th>Name</th>
+                <th>E-mail</th>
                 <th width="300px">Action</th>
             </tr>
         </thead>
@@ -33,21 +33,29 @@
                 <h4 class="modal-title" id="modelHeading"></h4>
             </div>
             <div class="modal-body">
-                <form id="bookForm" name="bookForm" class="form-horizontal">
-                   <input type="hidden" name="book_id" id="book_id">
+                <form id="userForm" name="userForm" class="form-horizontal">
+                   <input type="hidden" name="user_id" id="user_id">
                     <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">Title</label>
+                        <label for="name" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter Title" value="" maxlength="50" required="">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" value="" maxlength="50" required="">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Details</label>
+                        <label for="email" class="col-sm-2 control-label">E-mail</label>
                         <div class="col-sm-12">
-                            <textarea id="author" name="author" required="" placeholder="Enter Author" class="form-control"></textarea>
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter E-mail" value="" maxlength="50" required="">
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="password" class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-12">
+                            <input type="current-password" class="form-control" id="password" name="password" placeholder="Enter Password" value="" maxlength="50" required="">
+                        </div>
+                    </div>
+
 
                     <div class="col-sm-offset-2 col-sm-10">
                      <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save changes
@@ -75,30 +83,31 @@
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('books.index') }}",
+        ajax: "{{ route('users.index') }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'title', name: 'title'},
-            {data: 'author', name: 'author'},
+            {data: 'name', name: 'name'},
+            {data: 'email', name: 'email'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
     });
-    $('#createNewBook').click(function () {
-        $('#saveBtn').val("create-book");
-        $('#book_id').val('');
-        $('#bookForm').trigger("reset");
-        $('#modelHeading').html("Create New Book");
+    $('#createNewUser').click(function () {
+        $('#saveBtn').val("create-user");
+        $('#user_id').val('');
+        $('#userForm').trigger("reset");
+        $('#modelHeading').html("Create New User");
         $('#ajaxModel').modal('show');
     });
-    $('body').on('click', '.editBook', function () {
-      var book_id = $(this).data('id');
-      $.get("{{ route('books.index') }}" +'/' + book_id +'/edit', function (data) {
-          $('#modelHeading').html("Edit Book");
-          $('#saveBtn').val("edit-book");
+    $('body').on('click', '.editUser', function () {
+      var user_id = $(this).data('id');
+      $.get("{{ route('users.index') }}" +'/' + user_id +'/edit', function (data) {
+          $('#modelHeading').html("Edit User");
+          $('#saveBtn').val("edit-user");
           $('#ajaxModel').modal('show');
-          $('#book_id').val(data.id);
-          $('#title').val(data.title);
-          $('#author').val(data.author);
+          $('#user_id').val(data.id);
+          $('#name').val(data.name);
+          $('#email').val(data.email);
+          $('#password').val(data.password);
       })
    });
     $('#saveBtn').click(function (e) {
@@ -106,12 +115,13 @@
         $(this).html('Save');
 
         $.ajax({
-          data: $('#bookForm').serialize(),
-          url: "{{ route('books.store') }}",
+          data: $('#userForm').serialize(),
+          url: "{{ route('users.store') }}",
           type: "POST",
           dataType: 'json',
           success: function (data) {
-
+            console.log('Success:', data);
+            alert(Object.values(data));
               $('#bookForm').trigger("reset");
               $('#ajaxModel').modal('hide');
               table.draw();
@@ -119,21 +129,24 @@
           },
           error: function (data) {
               console.log('Error:', data);
+              //alert("Erro: "+ Object.values(data));
               $('#saveBtn').html('Save Changes');
           }
       });
     });
 
-    $('body').on('click', '.deleteBook', function () {
+    $('body').on('click', '.deleteUser', function () {
 
-        var book_id = $(this).data("id");
+        var user_id = $(this).data("id");
         $confirm = confirm("Are You sure want to delete !");
         if($confirm == true ){
             $.ajax({
                 type: "DELETE",
-                url: "{{ route('books.store') }}"+'/'+book_id,
+                url: "{{ route('users.store') }}"+'/'+user_id,
                 success: function (data) {
                     table.draw();
+                    alert(Object.values(data));
+
                 },
                 error: function (data) {
                     console.log('Error:', data);
